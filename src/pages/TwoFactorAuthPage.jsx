@@ -23,17 +23,50 @@ export default function TwoFactorAuthPage() {
     };
 
     const verifyCode = async () => {
-        // Handle code verification
+        // Handle code verification logic here
     };
 
     return (
-        <div>
-            <h2>Two-Factor Authentication</h2>
-            <input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone Number" />
-            <button onClick={sendVerificationCode}>Send Code</button>
-            <input type="text" value={code} onChange={(e) => setCode(e.target.value)} placeholder="Verification Code" />
-            <button onClick={verifyCode}>Verify Code</button>
-            <div id="recaptcha-container"></div>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
+                <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Two-Factor Authentication</h2>
+
+                <div className="space-y-4">
+                    <input
+                        type="text"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="Phone Number"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                    />
+                    <button
+                        onClick={sendVerificationCode}
+                        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-300"
+                    >
+                        Send Code
+                    </button>
+
+                    {verificationId && (
+                        <>
+                            <input
+                                type="text"
+                                value={code}
+                                onChange={(e) => setCode(e.target.value)}
+                                placeholder="Verification Code"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                            />
+                            <button
+                                onClick={verifyCode}
+                                className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-300"
+                            >
+                                Verify Code
+                            </button>
+                        </>
+                    )}
+
+                    <div id="recaptcha-container" className="mt-4"></div>
+                </div>
+            </div>
         </div>
     );
 }

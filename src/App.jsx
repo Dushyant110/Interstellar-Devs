@@ -9,16 +9,15 @@ import Login from './components/Login';
 
 function App() {
   return (
-    <Login />
-    // <Router>
-    //   <Routes>
-    //     <Route path="/login" element={<LoginPage />} />
-    //     <Route path="/sign-up" element={<SignUpPage />} />
-    //     <Route path="/profile" element={<ProfilePage />} />
-    //     <Route path="/two-factor-auth" element={<TwoFactorAuthPage />} />
-    //     <Route path="/password-reset" element={<PasswordResetPage />} />
-    //   </Routes>
-    // </Router>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/sign-up" element={<SignUpPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/two-factor-auth" element={<TwoFactorAuthPage />} />
+        <Route path="/password-reset" element={<PasswordResetPage />} />
+      </Routes>
+    </Router>
   );
 }
 
