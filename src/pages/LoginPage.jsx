@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { signInWithPopup, GoogleAuthProvider, GithubAuthProvider, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
-import { useState, useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // If you're using react-router-dom
+import { useNavigate, Link } from 'react-router-dom';
 
 export default function LoginPage() {
     const googleProvider = new GoogleAuthProvider();
@@ -10,10 +9,12 @@ export default function LoginPage() {
     const emailRef = useRef();
     const passwordRef = useRef();
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     const loginWithGoogle = async () => {
         try {
             await signInWithPopup(auth, googleProvider);
+            navigate('/two-factor-auth'); 
         } catch (err) {
             setError(err.message);
         }
@@ -22,6 +23,7 @@ export default function LoginPage() {
     const loginWithGitHub = async () => {
         try {
             await signInWithPopup(auth, githubProvider);
+            navigate('/two-factor-auth'); 
         } catch (err) {
             setError(err.message);
         }
@@ -31,8 +33,9 @@ export default function LoginPage() {
         e.preventDefault();
         try {
             await signInWithEmailAndPassword(auth, emailRef.current.value, passwordRef.current.value);
+            navigate('/two-factor-auth'); 
         } catch (err) {
-            setError(err.message);
+            setError("Either email/password invalid");
         }
     };
 
@@ -44,36 +47,24 @@ export default function LoginPage() {
 
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-800 to-gray-900 relative overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
+                <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Login</h2>
 
-            <nav className="absolute top-0 left-0 right-0 flex justify-between items-center p-4 bg-transparent z-10">
-                <Link to="/" className="flex items-center">
-                    <img
-                        src="your-logo-url.png" // Replace with your logo URL
-                        alt="Logo"
-                        className="h-10" // Adjust logo height as needed
-                    />
-                </Link>
-                <Link to="/" className="text-white bg-indigo-600 rounded px-6 py-3 transition-all duration-300 ease-in-out hover:bg-indigo-700 hover:shadow-lg hover:rounded-2xl"
-                >
-                    Home
-                </Link>
-            </nav>
+                <div className="space-y-4">
+                    <button
+                        onClick={loginWithGoogle}
+                        className="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-100"
+                    >
+                        Continue with Google
+                    </button>
 
-            <div className="absolute inset-0 flex flex-wrap justify-center pointer-events-none z-0">
-                {Array.from({ length: 50 }).map((_, index) => (
-                    <div key={index} className={`dot dot-${index}`} />
-                ))}
-            </div>
-            <div className="flex max-w-4xl w-full shadow-lg rounded-lg overflow-hidden z-10">
-
-                <div className=" hidden md:block w-1/2 bg-white ">
-                    <img 
-                        src="https://img.freepik.com/free-vector/flat-illustration-stock-trader-working-computer-with-graphs-man-investor-using-pc-analyzing-charts-diagrams-exchange-market-finances-cryptocurrency-investing_74855-20567.jpg?w=2000&t=st=1727629695~exp=1727630295~hmac=fe21d2c10f06284d06b0d5834b2a33b71528affef5583557f6e98507c4733751"
-                        alt="login" 
-                        className="w-auto h-100 object-cover mt-[97px]"
-                    />
-
+                    <button
+                        onClick={loginWithGitHub}
+                        className="w-full flex items-center justify-center py-2 px-4 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-100"
+                    >
+                        Continue with GitHub
+                    </button>
                 </div>
 
 

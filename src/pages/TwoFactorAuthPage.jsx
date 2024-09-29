@@ -1,71 +1,141 @@
+
+
+
 import React, { useState } from 'react';
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import OtpInput from 'otp-input-react';
+import { CgSpinner } from "react-icons/cg";
+import { BsFillShieldLockFill, BsTelephoneFill } from "react-icons/bs";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import { auth } from '../firebase/firebaseConfig';
+import { RecaptchaVerifier } from 'firebase/auth';
 
 export default function TwoFactorAuthPage() {
-    const [phone, setPhone] = useState('');
-    const [code, setCode] = useState('');
-    const [verificationId, setVerificationId] = useState(null);
+    const [otp, setOtp] = useState("");
+    const [ph, setPh] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [showOTP, setShowOTP] = useState(false);
+    const [user, setUser] = useState(false);
 
-    const setupRecaptcha = () => {
-        window.recaptchaVerifier = new RecaptchaVerifier('recaptcha-container', {}, auth);
-    };
 
-    const sendVerificationCode = async () => {
-        setupRecaptcha();
-        const appVerifier = window.recaptchaVerifier;
-        try {
-            const confirmationResult = await signInWithPhoneNumber(auth, phone, appVerifier);
-            setVerificationId(confirmationResult.verificationId);
-        } catch (error) {
-            console.error(error.message);
+    function onCaptchVerify() {
+        if (!window.recaptchaVerifier) {
+          window.recaptchaVerifier = new RecaptchaVerifier(
+            "recaptcha-container",
+            {
+              size: "invisible",
+              callback: (response) => {
+                onSignup();
+              },
+              "expired-callback": () => {},
+            },
+            auth
+          );
         }
-    };
+      }
 
-    const verifyCode = async () => {
-        // Handle code verification logic here
-    };
+    function onSignup() {
+        setLoading(true);
+        onCaptchVerify();
+
+        const appVerifier = window.recaptchaVerifier;
+
+        const formatPh = "+" + ph;
+
+        signInWithPhoneNumber(auth, formatPh, appVerifier)
+            .then((confirmationResult) => {
+                window.confirmationResult = confirmationResult;
+                setLoading(false);
+                setShowOTP(true);
+                toast.success("OTP sended successfully!");
+            })
+            .catch((error) => {
+                console.log(error);
+                setLoading(false);
+            });
+    }
+
+    function onOTPVerify() {
+        setLoading(true);
+        window.confirmationResult
+            .confirm(otp)
+            .then(async (res) => {
+                console.log(res);
+                setUser(res.user);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.log(err);
+                setLoading(false);
+            });
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
-                <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Two-Factor Authentication</h2>
-
-                <div className="space-y-4">
-                    <input
-                        type="text"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        placeholder="Phone Number"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                    />
-                    <button
-                        onClick={sendVerificationCode}
-                        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-300"
-                    >
-                        Send Code
-                    </button>
-
-                    {verificationId && (
-                        <>
-                            <input
-                                type="text"
-                                value={code}
-                                onChange={(e) => setCode(e.target.value)}
-                                placeholder="Verification Code"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                            />
-                            <button
-                                onClick={verifyCode}
-                                className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-300"
-                            >
-                                Verify Code
-                            </button>
-                        </>
-                    )}
-
-                    <div id="recaptcha-container" className="mt-4"></div>
-                </div>
+            <div id="recaptcha-container"></div>
+                {user ? (
+                    <h1 className="text-center font-bold text-xl text-green-500">Login Success</h1>
+                ) : (
+                    <>
+                        {!showOTP ? (
+                            <>
+                                <div className="text-black w-fit mx-auto p-4 rounded-full">
+                                    <BsFillShieldLockFill size={30} />
+                                </div>
+                                <label
+                                    htmlFor="otp"
+                                    className="font-bold text-xl text-center block mb-4"
+                                >
+                                    Enter your OTP
+                                </label>
+                                <OtpInput
+                                    value={otp}
+                                    onChange={setOtp}
+                                    OTPLength={6}
+                                    otpType="number"
+                                    disabled={false}
+                                    autoFocus
+                                    className="flex font-black justify-between gap-2"
+                                />
+                                <button onClick={onOTPVerify}
+                                    className="w-full bg-blue-500 text-white py-2 mt-4 rounded-md flex items-center justify-center"
+                                >
+                                    {loading && (
+                                        <CgSpinner size={20} className="mt-1 animate-spin mr-2" />
+                                    )}
+                                    <span>Verify OTP</span>
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <div className="text-black w-fit mx-auto p-4 rounded-full">
+                                    <BsTelephoneFill size={30} />
+                                </div>
+                                <label
+                                    htmlFor="ph"
+                                    className="font-bold text-xl text-center block mb-4"
+                                >
+                                    Verify your Phone Number
+                                </label>
+                                <PhoneInput
+                                    country={"in"}
+                                    value={ph}
+                                    onChange={setPh}
+                                    className="w-full"
+                                />
+                                <button onClick={onSignup}
+                                    className="w-full bg-blue-500 text-white py-2 mt-4 rounded-md flex items-center justify-center"
+                                >
+                                    {loading && (
+                                        <CgSpinner size={20} className="mt-1 animate-spin mr-2" />
+                                    )}
+                                    <span>Send code via SMS</span>
+                                </button>
+                            </>
+                        )}
+                    </>
+                )}
             </div>
         </div>
     );
