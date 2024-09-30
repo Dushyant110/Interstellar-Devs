@@ -6,11 +6,15 @@ import ProfilePage from './pages/ProfilePage';
 import TwoFactorAuthPage from './pages/TwoFactorAuthPage';
 import PasswordResetPage from './pages/PasswordResetPage';
 import Login from './components/Login';
+import HomePage from './pages/HomePage'
 
 function App() {
   return (
+    
+    
     <Router>
       <Routes>
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/sign-up" element={<SignUpPage />} />
         <Route path="/profile" element={<ProfilePage />} />
@@ -18,6 +22,7 @@ function App() {
         <Route path="/password-reset" element={<PasswordResetPage />} />
       </Routes>
     </Router>
+    
   );
 }
 
