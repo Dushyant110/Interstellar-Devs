@@ -386,10 +386,4 @@ plt.xlabel("Feature Importance")
 plt.title("Feature Importance for Peak Flux Prediction (Random Forest)")
 plt.show()
 
-from google.colab import drive
-drive.mount('/content/drive')
-
-# Option 2: Download from Colab
-from google.colab import files
-files.download("PSA.ipynb")
 
