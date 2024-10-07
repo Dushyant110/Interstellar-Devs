@@ -15,13 +15,14 @@ from astropy.io import fits
 import os
 import pandas as pd
 
+# First we will download all the .lc files and create a text file containing the paths.
+
 import os
 
 # Directory containing the .lc files
-lc_directory = '/content/'  # Replace with your actual directory
+lc_directory = '/content/'  # Replace with the actual directory path
 # Get a list of all .lc files in the directory
 lc_files = [f for f in os.listdir(lc_directory) if f.endswith('.lc')]
-# Write the full paths to lc_file_paths.txt
 with open('lc_file_paths.txt', 'w') as file:
     for lc_file in lc_files:
         file.write(os.path.join(lc_directory, lc_file) + '\n')
@@ -66,8 +67,6 @@ def evaluate(filename):
 
     return found
 
-# First we downloaded all the .lc files and created a text file containing the paths.
-# Now this code runs through every file and creates a dataframe with the above features
 def process(file_paths_file):
     with open(file_paths_file, 'r') as file:
         file_paths = file.read().splitlines()
@@ -85,7 +84,7 @@ def process(file_paths_file):
     # Concatenate all dataframes in the list into a single DataFrame
     if dataframes:  # If there is any data to concatenate
         df = pd.concat(dataframes, ignore_index=True)
-        df.to_csv('feature_data.csv', index=False)
+        df.to_csv('data.csv', index=False)
     else:
         print("No data to save to CSV.")
 
@@ -93,7 +92,7 @@ file_paths_file = 'lc_file_paths.txt'
 
 process(file_paths_file)
 
-df_data=pd.read_csv('feature_data.csv')
+df_data=pd.read_csv('data.csv')
 
 df_data.head()
 
@@ -110,12 +109,7 @@ import numpy as np
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import find_peaks, peak_prominences
 
-import numpy as np
-import pandas as pd
-from scipy.ndimage import gaussian_filter1d
-from scipy.signal import find_peaks, peak_prominences, peak_widths
-import astropy.io.fits as fits
-import matplotlib.pyplot as plt
+#Applying Peak detection process by setting a threshold,also applying kmeans algo to categorise different type of bursts
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
@@ -272,38 +266,30 @@ class x_ray_burst:
 # Assign the file paths directly instead of using input()
 y = "/content/ch2_xsm_20240906_v1_level2.lc"
 x = "/content/ch2_xsm_20240906_v1_level2.gti"
-
-# No need to use strip() as there are no extra quotes
 gti_filename = x
 lc_filename = y
 
 # Instantiate the x_ray_burst class and call its methods
-burst = x_ray_burst(gti_filename, lc_filename)
+burst_detection = x_ray_burst(gti_filename, lc_filename)
 
 # Plot the combined data
-burst.plot_combined_data()
+burst_detection.plot_combined_data()
 
 # Detect and visualize peaks
-burst.peaks()
+burst_detection.peaks()
 
 # Get combined data and calculate features
-times, smoothed_values = burst.combined_data()
-burst.extract_features() # Call the correct method name: extract_features()
+times, smoothed_values = burst_detection.combined_data()
+burst_detection.extract_features() # Call the correct method name: extract_features()
 
 # Apply clustering and classify bursts into 5 types
-df_burst_classification = burst.cluster_bursts(n_clusters=5)
-
-
-
-
+df_burst_classification = burst_detection.cluster_bursts(n_clusters=5)
 
 # Visualize the clusters
-burst.visualize_clusters(df_burst_classification)
+burst_detection.visualize_clusters(df_burst_classification)
 
-df_features = burst.extract_features()
-
-# Display extracted features
-print(df_features.head())
+df_features = burst_detection.extract_features()
+#for extracting all the useful features,so that to now apply the random forest model for further predictions
 
 # Target Variables: we will predict 'rise_time', 'decay_time', and 'peak_flux'
 from sklearn.model_selection import train_test_split
@@ -385,5 +371,8 @@ plt.barh(feature_names, feature_importance, color='skyblue')
 plt.xlabel("Feature Importance")
 plt.title("Feature Importance for Peak Flux Prediction (Random Forest)")
 plt.show()
+
+
+
 
 
